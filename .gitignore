@@ -1,0 +1,23 @@
+# Secrets
+.env
+*.env
+
+# Appsmith local data
+stacks/
+
+# Python
+__pycache__
+*.pyc
+venv/
+.venv/
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+
+# macOS / Windows junk
+.DS_Store
+Thumbs.db
