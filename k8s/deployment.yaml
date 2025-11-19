@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: YOUR_DOCKERHUB_USERNAME/ai-lowcode-app:latest   # placeholder
+        image: PENDING-MEMBER-B/resume-ai-app:latest # ← Mfobe will replace this
         ports:
         - containerPort: 8501   # or 8080, whatever the app uses
         envFrom:
