@@ -13,5 +13,5 @@ Upload resume > AI extracts skills > compare to any job description > instantly 
 - Member 4: Kubernetes + Documentation
 
 ## Quick local start (when all members have pushed code)
-'''bash
-docker compose -f docker/docker-compose.ymlup --build
+```bash
+docker compose -f docker/docker-compose.yml up --build

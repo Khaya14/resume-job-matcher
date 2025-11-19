@@ -1,0 +1,29 @@
+name: CI/CD - Build & Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_USERNAME }}
+        
+      - name: Build and push FastAPI image
+        uses: docker/build-push-action@v6
+        with: 
+          context:
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            lucky123/resume-matcher:latest
+            lucky123/resume-matcher:${{ github.sha }}
+  
