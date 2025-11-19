@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-lowcode-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-lowcode-app
+  template:
+    metadata:
+      labels:
+        app: ai-lowcode-app
+    spec:
+      containers:
+      - name: app
+        image: YOUR_DOCKERHUB_USERNAME/ai-lowcode-app:latest   # placeholder
+        ports:
+        - containerPort: 8501   # or 8080, whatever the app uses
+        envFrom:
+        - secretRef:
+            name: app-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
