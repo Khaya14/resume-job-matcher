@@ -24,6 +24,6 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            lucky123/resume-matcher:latest
+            lucky123/resume-matcher:latest		['lucky123' to change to DOCKERHUB USERNAME]
             lucky123/resume-matcher:${{ github.sha }}
   
