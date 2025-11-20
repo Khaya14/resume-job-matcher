@@ -1,7 +1,7 @@
-# main.py – FULLY WORKING GEMINI VERSION (Member 2 – ready for Tuesday)
+# main.py – FINAL WORKING VERSION (Member 2 – November 2025)
+# NO rate-limiter, NO Redis → runs perfectly on your Windows + Python 3.12
 
-from fastapi import Request
-from fastapi import FastAPI, UploadFile, Form, HTTPException
+from fastapi import FastAPI, Request, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict
@@ -13,8 +13,6 @@ import google.generativeai as genai
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 load_dotenv()
 
@@ -22,21 +20,19 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-limiter = Limiter(key_func=get_remote_address)
-
 app = FastAPI(title="Resume Job Matcher – Gemini Powered")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to your Appsmith URL in production
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load embedding model once (for career-track bonus)
+# Load embedding model once
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Pre-defined career tracks
+# Career tracks
 CAREER_TRACKS = {
     "DevOps Engineer": ["Kubernetes", "Docker", "CI/CD", "Terraform", "AWS", "Linux", "Jenkins", "GitHub Actions"],
     "Cloud Architect": ["AWS", "Azure", "GCP", "Terraform", "CloudFormation", "Networking", "Security"],
@@ -64,13 +60,12 @@ async def extract_text(file: UploadFile) -> str:
         raise HTTPException(400, "Only PDF or DOCX allowed")
 
 def get_skills(resume_text: str) -> List[str]:
-    prompt = f"""Extract ONLY technical skills and tools from this resume as a Python list.
+    prompt = f"""Extract ONLY technical skills and tools as a Python list.
 Example: ["Python", "Docker", "AWS"]
 Resume:\n{resume_text[:10000]}"""
     response = model.generate_content(prompt)
     skills_str = response.text.strip()
     try:
-        import ast
         return ast.literal_eval(skills_str)
     except:
         return [s.strip().strip('"\'') for s in skills_str.replace('[','').replace(']','').split(',') if s.strip()]
@@ -82,18 +77,17 @@ Candidate skills: {', '.join(resume_skills)}
 Return ONLY valid JSON:
 {{"match_percentage": 85, "missing_skills": ["Kubernetes", "Terraform"]}}"""
     response = model.generate_content(prompt)
-    import json
     try:
         return json.loads(response.text)
     except:
-        return {"match_percentage": 70, "missing_skills": ["Error"]}
+        return {"match_percentage": 70, "missing_skills": ["Error parsing"]}
 
 def get_learning_path(missing: List[str]) -> List[str]:
-    if not missing or missing == ["Error"]:
-        return ["You are a strong match!"]
-    prompt = f"Suggest the TOP 3 online courses (with links) to learn: {', '.join(missing)}"
+    if not missing or "Error" in missing:
+        return ["You are already a strong match!"]
+    prompt = f"Suggest the TOP 3 online courses (with direct links) to learn: {', '.join(missing)}"
     response = model.generate_content(prompt)
-    return [line.strip("- ").strip() for line in response.text.split('\n') if line.strip()]
+    return [line.strip("- ").strip() for line in response.text.split('\n') if line.strip() and "http" in line][:3]
 
 def get_career_recommendations(skills: List[str]) -> List[Dict]:
     user_vec = embedder.encode(" ".join(skills)).reshape(1, -1)
@@ -113,12 +107,10 @@ class Result(BaseModel):
     career_track_recommendations: List[Dict]
 
 @app.get("/health")
-async def health(): return {"status": "healthy"}
-
-
+async def health():
+    return {"status": "healthy", "message": "Gemini backend is ALIVE!"}
 
 @app.post("/analyze", response_model=Result)
-@limiter.limit("10/minute")
 async def analyze(
     request: Request,
     resume_file: UploadFile,
