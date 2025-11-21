@@ -1,6 +1,16 @@
 # Capstone Project, Individual Reflections
 
-### Khayalethu – Docker & CI/CD
+### Member 1 - UI & Low-code
+
+While integrating a third-party API into an AppSmith application, I encountered an issue where the two pages failed to communicate properly after adding the API key. 
+The key wasn’t being correctly passed or recognized in the request context, which prevented the results page from reflecting whether the API call was successful or returning data.
+I systematically debugged the authentication flow, request headers, and AppSmith’s API binding behavior, identified that the key needed to be injected via the ‘Headers’ section instead of query params, and added proper error handling with success/failure widgets.
+
+### Member 2 - AI Backend (FastAPI + Gemini)
+
+
+
+### Member 3 – Docker & CI/CD
 
 I owned the entire containerisation and continuous delivery track. I delivered:
 
@@ -18,3 +28,5 @@ After Mfobe finalised the Gemini backend, I debugged and resolved Docker Hub aut
 Local development command:
 ```bash
 docker compose -f docker/docker-compose.yml up --build
+
+### Member 4 - Kubernetes & Documentation
