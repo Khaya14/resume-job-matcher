@@ -15,7 +15,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
         
       - name: Build and push FastAPI image
         uses: docker/build-push-action@v6
@@ -24,6 +24,6 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            lucky123/resume-matcher:latest		['lucky123' to change to DOCKERHUB USERNAME]
-            lucky123/resume-matcher:${{ github.sha }}
+            khayalethu14/resume-matcher:latest
+            khayalethu14/resume-matcher:${{ github.sha }}
   

@@ -8,7 +8,7 @@ Upload resume > AI extracts skills > compare to any job description > instantly 
 
 ## Team
 - Member 1: UI + Low-code 
-- Member 2: AI Backend (FastAPI + Groq) 
+- Member 2: AI Backend (FastAPI + Gemini) 
 - Member 3: Docker + CI/CD
 - Member 4: Kubernetes + Documentation
 

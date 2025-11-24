@@ -1,0 +1,5 @@
+# final trigger 
+"Green trigger - backend complete" 
+"Fix - correct Docker Hub token" 
+"Fix: Correct username & full permission token" 
+"New fix - fresh token, deleted old secrets" 
