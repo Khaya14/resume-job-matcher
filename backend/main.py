@@ -19,10 +19,12 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-1.5-flash-latest')  # FIXED: Correct model name
 
-app = FastAPI(title="Resume Job Matcher – Gemini Powered")
+
+app = FastAPI(title="BitTrio - Resume Job Matcher")
 
 app.add_middleware(
     CORSMiddleware,
+    
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
