@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resume Job Matcher – Powered by Gemini</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .loading { display: none; }
+    .result { animation: fadeIn 0.8s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl p-10">
+    <h1 class="text-4xl font-bold text-center text-indigo-700 mb-8">
+      Resume Job Matcher – Gemini Powered
+    </h1>
+
+    <div class="space-y-6">
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-2">Upload Your Resume (PDF/DOCX)</label>
+        <input type="file" id="resume" accept=".pdf,.docx" class="w-full p-4 border-2 border-dashed border-indigo-300 rounded-lg"/>
+      </div>
+
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-2">Paste Job Description</label>
+        <textarea id="job" rows="8" class="w-full p-4 border-2 border-indigo-300 rounded-lg focus:border-indigo-600" 
+          placeholder="Paste the full job description here..."></textarea>
+      </div>
+
+      <button onclick="analyze()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-lg text-xl transition">
+        Analyze My Resume
+      </button>
+
+      <div class="loading text-center py-8" id="loading">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-8 border-indigo-600 border-t-transparent"></div>
+        <p class="mt-4 text-xl">Gemini is analyzing your resume...</p>
+      </div>
+
+      <div id="result" class="result hidden mt-10 space-y-8"></div>
+    </div>
+  </div>
+<script>
+  // THIS IS THE ONLY CHANGE YOU NEED — detects if running locally or in Docker
+  const BACKEND_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+      ? "http://localhost:8000"      // when running locally (you see this in browser)
+      : "http://backend:8000";       // when running inside Docker (containers talk to each other)
+
+  async function analyze() {
+    const resumeFile = document.getElementById("resume").files[0];
+    const jobDesc = document.getElementById("job").value.trim();
+
+    if (!resumeFile || !jobDesc) {
+      alert("Please upload your resume and paste a job description");
+      return;
+    }
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("result").classList.add("hidden");
+
+    const formData = new FormData();
+    formData.append("resume_file", resumeFile);
+    formData.append("job_description", jobDesc);
+
+    try {
+      const response = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Backend error");
+
+      const data = await response.json();
+
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("result").classList.remove("hidden");
+
+      document.getElementById("result").innerHTML = `
+        <div class="text-center">
+          <h2 class="text-5xl font-bold text-green-600">${data.match_score}% Match</h2>
+          <p class="text-2xl mt-4">You're a <strong>very strong candidate!</strong></p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mt-10">
+          <div class="bg-green-50 p-6 rounded-xl">
+            <h3 class="text-xl font-bold text-green-800">Skills Found</h3>
+            <ul class="mt-4 space-y-2">${data.extracted_skills.map(s => `<li class="text-green-700">• ${s}</li>`).join("")}</ul>
+          </div>
+
+          <div class="bg-red-50 p-6 rounded-xl">
+            <h3 class="text-xl font-bold text-red-800">Missing Skills</h3>
+            <ul class="mt-4 space-y-2">${data.missing_skills.map(s => `<li class="text-red-700">• ${s}</li>`).join("") || "<li class='text-gray-600'>None – you're perfect!</li>"}</ul>
+          </div>
+        </div>
+
+        <div class="mt-10 bg-blue-50 p-8 rounded-xl">
+          <h3 class="text-2xl font-bold text-blue-800">Top 3 Recommended Courses</h3>
+          <ol class="mt-6 space-y-4 text-lg">
+            ${data.learning_path.map(c => `<li class="text-blue-700">• ${c}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div class="mt-10 bg-purple-50 p-8 rounded-xl">
+          <h3 class="text-2xl font-bold text-purple-800">Best Career Tracks For You</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            ${data.career_track_recommendations.map(t => `
+              <div class="bg-white p-6 rounded-lg shadow text-center">
+                <h4 class="font-bold text-purple-700">${t.track}</h4>
+                <p class="text-3xl font-bold text-purple-600">${t.fit}% fit</p>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById("loading").style.display = "none";
+      alert("Error: Could not connect to backend. Make sure Docker is running!");
+      console.error(err);
+    }
+  }
+</script>
+</body>
+</html>

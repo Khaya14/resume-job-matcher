@@ -1,32 +1,23 @@
-# =================================================================
-# resume-job-matcher – FastAPI backend (Member 3)
-# FINAL VERSION – works even with empty backend folder
-# =================================================================
+# Dockerfile — FINAL VERSION (serves frontend + backend)
+FROM python:3.11-slim
 
-FROM python:3.12-slim
+# Install nginx
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN adduser --disabled-password --gecos '' appuser
 WORKDIR /app
 
-# Copy backend code
+# Copy and install backend
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 
-# Install dependencies only if requirements.txt exists
-COPY backend/requirements.txt* ./
-RUN if [ -f requirements.txt ]; then \
-        pip install --no-cache-dir --upgrade pip && \
-        pip install --no-cache-dir -r requirements.txt; \
-    else \
-        echo "No requirements.txt – skipping install"; \
-    fi
+# Copy frontend (HTML) to nginx
+COPY frontend/ /usr/share/nginx/html/
 
-# Copy the actual app code (safe)
-COPY backend/main.py* ./
-COPY backend/*.py ./
+# Custom nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Switch to non-root user
-USER appuser
+EXPOSE 80
 
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Start both nginx + FastAPI
+CMD service nginx start && python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000

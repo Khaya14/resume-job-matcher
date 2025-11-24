@@ -1,34 +1,10 @@
-# docker/docker-compose.yml
-# resume-job-matcher - one command to rule them all
 version: "3.9"
-
 services:
-  # === Appsmith (UI - Member 1) ===
-  appsmith:
-    image: appsmith/appsmitch-ce:latest
-    container_name: resume-matcher-ui
+  resume-matcher:
+    build: .
+    container_name: resume-matcher-fullstack
     ports:
-     - "80:80"
-     - "443:443"
-    volumes:
-    - appsmith_stacks:/appsmith-stacks
+      - "80:80"
     environment:
-    - APPSMITH_DISABLE_TELEMETRY=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     restart: unless-stopped
-
- # === FastAPI backend (AI - Member 2) ===
- fastapi:
-   container_name: resume-matcher-api
-   build:
-     context:
-     dockerfile:docker/Dockerfile
-   ports:
-    - "8000:8000"
-   environment:
-    - GROQ_QPI_KEY=${GROQ_API_KEY}
-   depends_on:
-    - appsmith
-   restart: unless_stopped
-
-volumes:
-  appsmith_stacks:
