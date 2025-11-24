@@ -1,24 +1,14 @@
-version: '3.9'
-
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     environment:
-      - GEMINI_API_KEY=AIzaSyBIl8NRSv1xHmu8-NhJuxxB7YKdxNF47bY
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
 
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"          # THIS LINE WAS MISSING OR WRONG BEFORE
+      - "8080:80"
     depends_on:
       - backend
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
