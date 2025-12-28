@@ -1,4 +1,4 @@
-# main.py – FIXED GEMINI MODEL + ERROR HANDLING (November 2025)
+# main.py – FIXED GEMINI MODEL + ERROR HANDLING (December 2025)
 
 from fastapi import FastAPI, Request, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash-latest')  # FIXED: Correct model name
+model = genai.GenerativeModel('gemini-3-flash')  # FIXED: Correct model name
 
 
 app = FastAPI(title="BitTrio - Resume Job Matcher")
