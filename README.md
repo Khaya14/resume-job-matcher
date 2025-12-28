@@ -14,4 +14,4 @@ Upload resume > AI extracts skills > compare to any job description > instantly 
 
 ## Quick local start (when all members have pushed code)
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+docker compose up --build
